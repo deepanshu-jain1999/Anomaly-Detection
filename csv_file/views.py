@@ -9,6 +9,7 @@ from .serializers import FileSerializer
 
 class FileView(APIView):
     parser_classes = (CSVParser,) + tuple(api_settings.DEFAULT_PARSER_CLASSES)
+    serializer_class = FileSerializer
 
     def post(self, request, *args, **kwargs):
         file_serializer = FileSerializer(data=request.data)

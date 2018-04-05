@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import File
+# from .models import File
 
 
-class FileSerializer(serializers.ModelSerializer):
+class FileSerializer(serializers.Serializer):
     csv_file = serializers.FileField()
+
     class Meta:
-        model = File
-        fields = ('csv_file', 'title')
+        fields = ('csv_file',)
 
 
 

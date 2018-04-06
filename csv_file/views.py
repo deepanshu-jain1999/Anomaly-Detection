@@ -137,9 +137,9 @@ def plot_results(x, y, window_size, sigma_value=1, text_xlabel="X Axis", text_yl
 
     data = base64.b64encode(data)
     data = str(data)
-    print(len(data))
-
-    print(len(data))
+    # print(len(data))
+    #
+    # print(len(data))
     data = data[2:-1]
     # print(data)
     # add grid and lines and enable the plot
@@ -161,10 +161,12 @@ class FileView(APIView):
     # parser_classes = (FileUploadParser,)
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
 
         file_name = request.data["csv_file"]
         dic = {}
         dic["file_name"]= "ok"
+        state = request.data["state"]
 
         data = pd.read_csv(file_name)
         data.head()
@@ -178,7 +180,7 @@ class FileView(APIView):
         data.info()
         # data.groupby(['SUBDIVISION']).plot(x='YEAR', y='ANNUAL')
         # checking one plot manually, for 'ANDAMAN & NICOBAR ISLANDS'
-        sample = data[data['SUBDIVISION'] == 'ANDAMAN & NICOBAR ISLANDS']
+        sample = data[data['SUBDIVISION'] == state]
         # plt.plot(sample.YEAR, sample.ANNUAL)
         # print(sample.info())
         sample.head()

@@ -22,6 +22,12 @@ from random import randint
 from matplotlib import style
 style.use('fivethirtyeight')
 # %matplotlib inline
+import io
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_text
+import base64
+
+
 
 def moving_average(data, window_size):
     """ Computes moving average using discrete linear convolution of two one dimensional sequences.
@@ -122,10 +128,24 @@ def plot_results(x, y, window_size, sigma_value=1, text_xlabel="X Axis", text_yl
     y_anomaly = np.fromiter(events['anomalies_dict'].values(), dtype=float, count=len(events['anomalies_dict']))
 
     plt.plot(x_anomaly, y_anomaly, "r*", markersize=12)
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png")
+    plt.savefig("real.png", format='png')
+    buf.seek(0)
+    data = buf.read()
+    buf.close()
 
+    data = base64.b64encode(data)
+    data = str(data)
+    print(len(data))
+
+    print(len(data))
+    data = data[2:-1]
+    # print(data)
     # add grid and lines and enable the plot
-    plt.grid(True)
-    plt.show()
+    # plt.grid(True)
+    # plt.show()
+    return data
 
 
 # def find_anomaly(data=data, sub_division='ANDAMAN & NICOBAR ISLANDS', allowed_deviation=25):
@@ -156,10 +176,10 @@ class FileView(APIView):
         data.info()
         data['ANNUAL'] = data['ANNUAL'].fillna(data['ANNUAL'].median())
         data.info()
-        data.groupby(['SUBDIVISION']).plot(x='YEAR', y='ANNUAL')
+        # data.groupby(['SUBDIVISION']).plot(x='YEAR', y='ANNUAL')
         # checking one plot manually, for 'ANDAMAN & NICOBAR ISLANDS'
         sample = data[data['SUBDIVISION'] == 'ANDAMAN & NICOBAR ISLANDS']
-        plt.plot(sample.YEAR, sample.ANNUAL)
+        # plt.plot(sample.YEAR, sample.ANNUAL)
         # print(sample.info())
         sample.head()
         sample.index = sample.YEAR
@@ -168,7 +188,7 @@ class FileView(APIView):
         y = sample['ANNUAL']
         y.head()
         # plot the results
-        plot_results(x, y=y, window_size=12, text_xlabel="Year", sigma_value=2, text_ylabel="Rainfall")
+        graph = plot_results(x, y=y, window_size=12, text_xlabel="Year", sigma_value=2, text_ylabel="Rainfall")
         events = explain_anomalies(y, window_size=12, sigma=2)
 
         # Display the anomaly dict
@@ -184,7 +204,9 @@ class FileView(APIView):
         # print(train.head())
         test.index = pd.DatetimeIndex(test['YEAR'].map(lambda x: pd.Timestamp(str(x))))
         # print(test.head())
-        print(events)
 
+        # print(type(graph))
+
+        events["graph"] = graph
         return Response(events, status=status.HTTP_201_CREATED)
 

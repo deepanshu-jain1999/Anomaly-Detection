@@ -60,11 +60,16 @@ def explain_anomalies(y, window_size, sigma=1.0):
 
     """
     avg = moving_average(y, window_size).tolist()
+    # n = len(avg)
+    # sum_avg = sum(avg)/n
     residual = y - avg
+
     # Calculate the variation in the distribution of the residual
     std = np.std(residual)
+
     index_val = list(y.index)
-    return {'standard_deviation': round(std, 3),
+    # ans = str(round(float(std)/float(sum_avg)*100), 3)+"%"
+    return {'standard_deviation': str(round(std, 3)),
             'anomalies_dict': collections.OrderedDict([(index, y_i) for index, y_i, avg_i in zip(index_val, y, avg)
               if (y_i > avg_i + (sigma*std)) | (y_i < avg_i - (sigma*std))])}
 
@@ -138,7 +143,7 @@ def plot_results(x, y, window_size, sigma_value=1, text_xlabel="X Axis", text_yl
     data = base64.b64encode(data)
     data = str(data)
     # print(len(data))
-    #
+
     # print(len(data))
     data = data[2:-1]
     # print(data)
